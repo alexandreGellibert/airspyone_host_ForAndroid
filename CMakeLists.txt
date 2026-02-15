@@ -15,6 +15,11 @@ else()
 endif()
 
 add_subdirectory(libairspy)
+if(ANDROID)
+    message(STATUS "Android build: skipping desktop-only sections below")
+    return()
+endif()
+
 add_subdirectory(airspy-tools)
 
 ########################################################################

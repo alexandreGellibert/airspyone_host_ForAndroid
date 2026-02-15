@@ -764,6 +764,7 @@ static void airspy_open_device_fd(airspy_device_t* device,
 	int result = -1;
 
 #ifdef __ANDROID__
+    libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
 	result = libusb_wrap_sys_device(device->usb_context, (intptr_t)fd, &device->usb_device);
 #else
 	device->usb_device = NULL;

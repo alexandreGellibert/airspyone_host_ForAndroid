@@ -50,7 +50,14 @@ endif(MINGW)
 add_library(airspy SHARED ${c_sources} ${AIRSPY_DLL_SRCS})
 set_target_properties(airspy PROPERTIES VERSION ${AIRSPY_VER_MAJOR}.${AIRSPY_VER_MINOR}.${AIRSPY_VER_REVISION})
 set_target_properties(airspy PROPERTIES SOVERSION 0)
+if(ANDROID)
+    target_include_directories(airspy PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
+    target_link_libraries(airspy
+            libusb
+            log
+            android)
 
+endif ()
 if( ${WIN32} )
 set_target_properties(airspy PROPERTIES
                       RUNTIME_OUTPUT_DIRECTORY_RELEASE ../../airspy-tools/src
@@ -70,7 +77,7 @@ set_target_properties(airspy-static PROPERTIES CLEAN_DIRECT_OUTPUT 1)
 
 # Dependencies
 target_link_libraries(airspy ${LIBUSB_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
-   
+
 # For cygwin just force UNIX OFF and WIN32 ON
 if( ${CYGWIN} )
   SET(UNIX OFF)

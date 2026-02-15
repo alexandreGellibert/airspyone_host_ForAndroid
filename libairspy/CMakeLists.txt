@@ -73,12 +73,21 @@ else()
 		 add_definitions(-DAIRSPY_BIG_ENDIAN)
 	endif(${BIGENDIAN})
 endif()
-find_package(LIBUSB REQUIRED)
-find_package(Threads REQUIRED)
 
-include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
+# Android case: include libusb
+if(NOT ANDROID)
+    find_package(LIBUSB REQUIRED)
+    find_package(Threads REQUIRED)
+
+    include_directories(${LIBUSB_INCLUDE_DIR} ${THREADS_PTHREADS_INCLUDE_DIR})
+endif()
 
 add_subdirectory(src)
+
+if(ANDROID)
+    message(STATUS "Android build: skipping desktop-only sections below")
+    return()
+endif()
 
 ########################################################################
 # Create Pkg Config File
