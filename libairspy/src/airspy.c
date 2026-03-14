@@ -764,7 +764,7 @@ static void airspy_open_device_fd(airspy_device_t* device,
 	int result = -1;
 
 #ifdef __ANDROID__
-    libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
+//    libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
 	result = libusb_wrap_sys_device(device->usb_context, (intptr_t)fd, &device->usb_device);
 #else
 	device->usb_device = NULL;
@@ -848,10 +848,16 @@ static int airspy_open_init(airspy_device_t** device, uint64_t serial_number, in
 
 #ifdef __ANDROID__
 	// LibUSB does not support device discovery on android
-	libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
+    struct libusb_init_option options[] = {
+            {
+                    .option = LIBUSB_OPTION_NO_DEVICE_DISCOVERY,
+                    .value = { .ival = 1 } // 1 enables the "No Discovery" mode
+            }
+    };
+    libusb_error = libusb_init_context(&lib_device->usb_context, options, 1);
+#else
+    libusb_error = libusb_init(&lib_device->usb_context);
 #endif
-
-	libusb_error = libusb_init(&lib_device->usb_context);
 	if (libusb_error != 0)
 	{
 		free(lib_device);
@@ -973,10 +979,16 @@ int airspy_list_devices(uint64_t *serials, int count)
 
 #ifdef __ANDROID__
 	// LibUSB does not support device discovery on android
-	libusb_set_option(NULL, LIBUSB_OPTION_NO_DEVICE_DISCOVERY, NULL);
-#endif
-
+    struct libusb_init_option options[] = {
+            {
+                    .option = LIBUSB_OPTION_NO_DEVICE_DISCOVERY,
+                    .value = { .ival = 1 } // 1 enables the "No Discovery" mode
+            }
+    };
+    if (libusb_init_context(&context, options, 1) != 0)
+#else
 	if (libusb_init(&context) != 0)
+#endif
 	{
 		return AIRSPY_ERROR_LIBUSB;
 	}
